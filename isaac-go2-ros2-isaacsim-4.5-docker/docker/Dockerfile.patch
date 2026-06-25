@@ -1,0 +1,13 @@
+FROM seanchangx/isaac-go2-ros2:humble
+
+USER root
+
+# Fix conda path in ubuntu's .bashrc (was /opt/conda which does not exist)
+RUN sed -i 's|/opt/conda/etc/profile.d/conda.sh|/home/ubuntu/miniconda3/etc/profile.d/conda.sh|g' /home/ubuntu/.bashrc
+
+# Add conda + isaaclab setup to root's .bashrc for interactive root sessions
+RUN printf '\n# Conda + isaaclab setup\nif [ -f "/home/ubuntu/miniconda3/etc/profile.d/conda.sh" ]; then\n    source "/home/ubuntu/miniconda3/etc/profile.d/conda.sh"\n    conda activate isaaclab 2>/dev/null || true\nfi\n' >> /root/.bashrc
+
+# Replace entrypoint (reverted to root-based execution)
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
