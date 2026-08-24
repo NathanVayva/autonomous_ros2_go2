@@ -35,6 +35,19 @@ RUN cd src && pip install -r requirements.txt
 RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
     rosdep install --from-paths src --ignore-src -r -y
 
+# go2_ai : deps d'inference VLM locale (Qwen3-VL). Installées AVANT le pin de
+# setuptools ci-dessous, car elles remontent setuptools (ex. 83.x) — on veut que
+# ce soit le pin qui gagne, pas ces deps.
+RUN pip install transformers accelerate bitsandbytes
+
+# pip (requirements + deps VLM ci-dessus) remonte setuptools (ex. 83.x), ce qui
+# casse le build ament_python de ROS Humble : "canonicalize_version() got an
+# unexpected keyword argument 'strip_trailing_zero'". On restaure la version
+# d'origine (défaut Humble) EN DERNIER, pour qu'elle persiste dans l'image finale
+# (utile aussi pour les `colcon build` refaits à la main dans le conteneur).
+# Vérifié : 83.0.0 -> Failed, 59.6.0 -> OK.
+RUN pip install "setuptools==59.6.0"
+
 # Build the workspace
 RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
     colcon build

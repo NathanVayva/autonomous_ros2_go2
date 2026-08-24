@@ -57,7 +57,11 @@ async def spin_node(node: Go2DriverNode):
         while rclpy.ok():
             await asyncio.sleep(0.1)
     finally:
-        thread.join(timeout=1.0)
+        # Break executor.spin() so the spin thread actually returns; otherwise it
+        # keeps spinning a dead context ("publisher's context is invalid") and the
+        # join below just times out.
+        executor.shutdown()
+        thread.join(timeout=2.0)
 
 
 async def main_async():
@@ -106,11 +110,18 @@ async def main_async():
         try:
             # Disconnect from robots
             if 'node' in locals() and hasattr(node, 'robot_adapter'):
-                for robot_id in node.robot_adapter.connections:
+                # disconnect() deletes from connections, so iterate over a snapshot
+                # (dict can't change size during iteration).
+                for robot_id in list(node.robot_adapter.connections):
                     await node.robot_adapter.disconnect(robot_id)
             
-            # Close unfinished tasks
-            tasks = [t for t in asyncio.all_tasks() if not t.done()]
+            # Close unfinished tasks. Exclude THIS coroutine's own task:
+            # all_tasks() includes it, and cancelling+gathering a set that
+            # contains the running task is self-referential — cancel() recurses
+            # until RecursionError and the shutdown hangs.
+            current = asyncio.current_task()
+            tasks = [t for t in asyncio.all_tasks()
+                     if t is not current and not t.done()]
             if tasks:
                 for task in tasks:
                     task.cancel()
@@ -119,7 +130,11 @@ async def main_async():
         except Exception as e:
             print(f"Error during cleanup: {e}")
         finally:
-            rclpy.shutdown()
+            # Idempotent: on SIGINT the coroutine's finally can run twice (once on
+            # cancel, once when the GC closes the coroutine at interpreter exit).
+            # rclpy.ok() is False after the first shutdown, so skip the second.
+            if rclpy.ok():
+                rclpy.shutdown()
 
 
 def main():

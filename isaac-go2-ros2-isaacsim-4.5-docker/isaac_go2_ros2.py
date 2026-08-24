@@ -1,4 +1,6 @@
 import os
+import sys
+import shlex
 import hydra
 import rclpy
 import torch
@@ -7,19 +9,39 @@ import math
 import argparse
 from isaaclab.app import AppLauncher
 
+# Inject Hydra overrides from the SIM_ARGS env var (set by docker/launch.sh's
+# perf preset) into sys.argv so @hydra.main picks them up. Done here because the
+# entrypoint is baked into the image, while this script is bind-mounted (live).
+# e.g. SIM_ARGS="sensor.depth_image=false freq=25"
+_sim_args = shlex.split(os.environ.get("SIM_ARGS", ""))
+if _sim_args:
+    print(f"[isaac_go2_ros2] applying Hydra overrides from SIM_ARGS: {_sim_args}")
+    sys.argv.extend(_sim_args)
+
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Tutorial on running the cartpole RL environment.")
 
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
-# parse the arguments
-args_cli = parser.parse_args()
+# parse_known_args: AppLauncher flags (e.g. --headless, --enable_cameras) go into
+# args_cli; Hydra key=value overrides come back as `hydra_overrides`. We then rebuild
+# sys.argv with ONLY the Hydra overrides so @hydra.main doesn't choke on the --flags.
+args_cli, hydra_overrides = parser.parse_known_args()
+sys.argv = [sys.argv[0]] + hydra_overrides
 
 # launch omniverse app
 app_launcher = AppLauncher(args_cli)
 simulation_app = app_launcher.app
 
 """Rest everything follows."""
+
+# The headless rendering kit (used with --headless --enable_cameras) does not
+# auto-load the camera sensor extension, yet go2/go2_sensors.py imports it at module
+# top -> ModuleNotFoundError: 'isaacsim.sensors'. Force-enable it before that import
+# (same pattern as the ROS2 bridge extension in go2_ros2_bridge.py). No-op if already on.
+import omni.kit.app
+omni.kit.app.get_app().get_extension_manager().set_extension_enabled_immediate(
+    "isaacsim.sensors.camera", True)
 
 import torch
 
@@ -85,6 +107,13 @@ def run_simulator(cfg):
 
             # step the environment
             obs, _, _, _ = env.step(actions)
+
+            # Headless has no viewport to pump the renderer, so the RTX lidar/camera
+            # render products never refresh and their annotator .get_data() blocks the
+            # loop after ~2 steps. Force one render per iteration when headless (the GUI
+            # path already renders via the viewport, so skip it there to save RTF).
+            if args_cli.headless:
+                env.unwrapped.sim.render()
 
             # # ROS2 data
             dm.pub_ros2_data()

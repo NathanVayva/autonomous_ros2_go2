@@ -4,6 +4,7 @@
 import asyncio
 import logging
 import os
+import time
 from typing import Dict, Any
 
 from aiortc import MediaStreamTrack
@@ -29,6 +30,15 @@ from ..infrastructure.webrtc import WebRTCAdapter
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+# cmd_vel forwarder : la commande "Move" du Go2 est un keep-alive -> il faut la
+# réémettre à cadence fixe pour un mouvement fluide. Nav2/RViz publient par
+# à-coups (avec des trous) -> saccade. On garde le dernier cmd_vel et on le
+# réémet à CMD_FORWARD_HZ ; watchdog : après CMD_TIMEOUT_S de silence on envoie
+# un stop, et après CMD_IDLE_S on cesse d'émettre (pas de spam au repos).
+CMD_FORWARD_HZ = 50.0
+CMD_TIMEOUT_S = 0.3
+CMD_IDLE_S = 1.0
 
 
 class Go2DriverNode(Node):
@@ -65,9 +75,14 @@ class Go2DriverNode(Node):
         
         # Subscribers initialization
         self._setup_subscribers()
-        
+
         # State
         self.joy_state = Joy()
+
+        # cmd_vel forwarder : dernier (x, y, z, t_monotonic) reçu par robot,
+        # réémis à cadence fixe par _forward_cmd_vel (lisse Nav2/RViz).
+        self._last_cmd: Dict[str, tuple] = {}
+        self.create_timer(1.0 / CMD_FORWARD_HZ, self._forward_cmd_vel)
 
 
     def _create_robot_adapter(self):
@@ -268,10 +283,30 @@ class Go2DriverNode(Node):
         return result
 
     def _on_cmd_vel(self, msg: Twist, robot_id: str) -> None:
-        """Callback for movement commands"""
+        """Callback for movement commands.
+
+        On ne forwarde PAS directement ici : on mémorise le dernier ordre. Le
+        timer _forward_cmd_vel le réémet à cadence fixe (débit régulier vers le
+        robot, quelle que soit la cadence de la source Nav2/RViz/UI).
+        """
+        self._last_cmd[robot_id] = (
+            msg.linear.x, msg.linear.y, msg.angular.z, time.monotonic())
+
+    def _forward_cmd_vel(self) -> None:
+        """Réémet le dernier cmd_vel à cadence fixe + watchdog stop."""
+        now = time.monotonic()
+        for robot_id, (x, y, z, t) in list(self._last_cmd.items()):
+            age = now - t
+            if age > CMD_IDLE_S:
+                del self._last_cmd[robot_id]          # silence prolongé -> repos, on cesse d'émettre
+            elif age > CMD_TIMEOUT_S:
+                self._send_cmd(0.0, 0.0, 0.0, robot_id)  # watchdog : source muette -> stop
+            else:
+                self._send_cmd(x, y, z, robot_id)     # réémission du dernier ordre
+
+    def _send_cmd(self, x: float, y: float, z: float, robot_id: str) -> None:
         self.robot_control_service.handle_cmd_vel(
-            msg.linear.x, msg.linear.y, msg.angular.z, 
-            robot_id, self.config.obstacle_avoidance
+            x, y, z, robot_id, self.config.obstacle_avoidance
         )
 
     def _on_webrtc_req(self, msg: WebRtcReq, robot_id: str) -> None:
@@ -342,6 +377,12 @@ class Go2DriverNode(Node):
     async def connect_robots(self) -> None:
         """Connect to robots"""
         if self.config.conn_type in ('webrtc', 'sim'):
+            if not self.config.robot_ip_list:
+                raise RuntimeError(
+                    "No robot IP configured. Set ROBOT_IP (e.g. "
+                    "ROBOT_IP=192.168.12.1 in docker/.env) to the robot's address "
+                    "before launching the driver."
+                )
             for i, robot_ip in enumerate(self.config.robot_ip_list):
                 try:
                     await self.robot_adapter.connect(str(i))

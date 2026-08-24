@@ -10,4 +10,8 @@ pycryptodome
 opencv-python
 pydub
 numpy==1.26.4
-
+pygame==2.6.1
+# NB : les deps VLM de go2_ai (transformers/accelerate/bitsandbytes) NE sont PAS
+# ici. Elles remontent setuptools et cassent le build ament_python de ROS
+# (canonicalize_version ... strip_trailing_zero). Elles sont installées APRÈS le
+# colcon build, dans le Dockerfile.

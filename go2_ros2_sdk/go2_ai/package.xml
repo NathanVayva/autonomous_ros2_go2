@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>go2_ai</name>
+  <version>0.1.0</version>
+  <description>Backend IA local (VLM + raisonnement embarqué) pour le Go2</description>
+  <maintainer email="nathan.vayva@gmail.com">Nathan</maintainer>
+  <license>BSD-3-Clause</license>
+
+  <!-- Dépendances ROS résolues par rosdep. NB: torch/transformers ne sont PAS ici
+       (ce ne sont pas des paquets ROS) : ils sont dans setup.py / gérés côté image. -->
+  <depend>rclpy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>cv_bridge</depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <!-- ⚠️ build_type ici, PAS de <buildtool_depend>ament_python</buildtool_depend>
+         (c'était le bug rosdep corrigé sur d'autres packages du workspace). -->
+    <build_type>ament_python</build_type>
+  </export>
+</package>

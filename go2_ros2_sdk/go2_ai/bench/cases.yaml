@@ -1,0 +1,19 @@
+# Jeu de test FIXE pour le benchmark (tuto §11.1).
+# À remplir avec TES images (dossier bench/samples/) + la réponse attendue.
+# C'est ce qui rend la comparaison honnête : même examen pour tous les modèles.
+#
+# Schéma d'un cas :
+#   - image: "samples/xxx.jpg"     # chemin relatif à bench/
+#     instruction: "..."           # consigne haut-niveau (pour plan())
+#     target: "..."                # objet à localiser (pour ground())
+#     expect_found: true|false     # vérité terrain minimale (juge le grounding)
+#
+# Exemple (à remplacer) :
+# - image: "samples/couloir.jpg"
+#   instruction: "va vers la porte"
+#   target: "porte"
+#   expect_found: true
+# - image: "samples/mur.jpg"       # piège : l'objet est absent
+#   instruction: "trouve la chaise rouge"
+#   target: "chaise rouge"
+#   expect_found: false

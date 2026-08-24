@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.coverage
+coverage.xml
+.gitignore
+
+# ROS2 / colcon
+build/
+install/
+log/
+
+# Logs & scratch
+*.log
+log.txt
+test.txt
+runInContainer2Start.txt
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+
+
+
+# Secrets / env (auto-generated or machine-specific)
+**/.env
+
+# Isaac Sim caches & runtime outputs (machine-specific, regenerated each run)
+**/nv_shadercache/
+**/shadercache/
+**/outputs/
+
+# Runtime artifacts
+**/tts_cache/
+**/3d_map.ply
+
+# Upstream Gazebo/CHAMP submodule (unused in the Isaac pipeline, ~94M)
+go2_ros2_sdk/unitree-go2-ros2/
+
+# Personal / academic documents (kept local, not part of the code project)
+rapport/
+PORTFOLIO.md
+instruction_rapport.txt
+*.pptx
+
+# One-off VLM test scratch outputs
+data_tests/
+
+# Generated map artifacts (regenerate via go2_ai/tools/map_landmarks.py)
+go2_ros2_sdk/map/*_landmarks.json
+go2_ros2_sdk/map/*_landmarks.png
+go2_ros2_sdk/map/lab_annotated.png
+go2_ros2_sdk/map/lab3.pgm

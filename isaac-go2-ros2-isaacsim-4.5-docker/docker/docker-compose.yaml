@@ -23,6 +23,8 @@ services:
       # ROS2 configuration
       - AUTO_BUILD=${AUTO_BUILD}
       - AUTO_RUN=${AUTO_RUN}
+      # Hydra overrides for isaac_go2_ros2.py (perf preset, etc.); see launch.sh
+      - SIM_ARGS=${SIM_ARGS:-}
       - LOCAL_USER_ID=${LOCAL_USER_ID:-1000}
       - LOCAL_GROUP_ID=${LOCAL_GROUP_ID:-1000}
       - ROS_WS=/home/ubuntu/isaac-go2-ros2/ros2_ws

@@ -23,7 +23,11 @@ def create_obstacle_sparse_env():
         terrain_generator=TerrainGeneratorCfg(
             seed=0,
             size=(50, 50),
-            color_scheme="height",
+            # "height" routes through IsaacLab color_meshes_by_height -> trimesh.interpolate
+            # with a color_map this trimesh build rejects (only magma/inferno/plasma/viridis).
+            # "none" skips vertex coloring (visual only; no physics/sensor/RTF impact), matching
+            # create_obstacle_dense_env which already works.
+            color_scheme="none",
             sub_terrains={"t1": HfUniformDiscreteObstaclesTerrainCfg(
                 seed=0,
                 size=(50, 50),
@@ -48,7 +52,11 @@ def create_obstacle_medium_env():
         terrain_generator=TerrainGeneratorCfg(
             seed=0,
             size=(50, 50),
-            color_scheme="height",
+            # "height" routes through IsaacLab color_meshes_by_height -> trimesh.interpolate
+            # with a color_map this trimesh build rejects (only magma/inferno/plasma/viridis).
+            # "none" skips vertex coloring (visual only; no physics/sensor/RTF impact), matching
+            # create_obstacle_dense_env which already works.
+            color_scheme="none",
             sub_terrains={"t1": HfUniformDiscreteObstaclesTerrainCfg(
                 seed=0,
                 size=(50, 50),

@@ -2,7 +2,7 @@ defaults:
   - _self_
 
 num_envs: 1
-freq: 40 # can only be divisible by 200
+freq: 50 # can only be divisible by 200 (50 Hz = decimation 4, matches the policy's training rate)
 camera_follow: True
 env_name: obstacle-dense
 # env_name: full-warehouse

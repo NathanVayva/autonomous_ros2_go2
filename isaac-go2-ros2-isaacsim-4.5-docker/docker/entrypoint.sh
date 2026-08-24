@@ -79,6 +79,9 @@ fi
 if [ "${AUTO_RUN}" = "true" ]; then
     echo "Launching main program..."
     cd /home/ubuntu/isaac-go2-ros2
+    # Hydra overrides are read from the SIM_ARGS env var inside isaac_go2_ros2.py
+    # (the entrypoint is baked into the image, so we keep it override-free here).
+    echo "Hydra overrides (SIM_ARGS): ${SIM_ARGS:-<none>}"
     python isaac_go2_ros2.py
 fi
 

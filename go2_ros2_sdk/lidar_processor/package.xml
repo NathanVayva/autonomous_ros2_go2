@@ -9,9 +9,7 @@
   <license>BSD-3-Clause</license>
   
   <author email="abizov94@gmail.com">brimo</author>
-  
-  <buildtool_depend>ament_python</buildtool_depend>
-  
+
   <!-- Core ROS2 dependencies -->
   <depend>rclpy</depend>
   <depend>sensor_msgs</depend>

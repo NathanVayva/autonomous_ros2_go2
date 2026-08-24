@@ -22,9 +22,11 @@ class RobotConfig:
                    enable_video: bool, decode_lidar: bool, 
                    publish_raw_voxel: bool, obstacle_avoidance: bool):
         """Создание конфигурации из параметров"""
-        robot_ip_list = robot_ip.replace(" ", "").split(",")
+        # Drop empty entries so an unset/blank ROBOT_IP yields [] (not ['']),
+        # which would otherwise become a phantom robot with an empty IP.
+        robot_ip_list = [ip for ip in robot_ip.replace(" ", "").split(",") if ip]
         conn_mode = "single" if (
-            len(robot_ip_list) == 1 and conn_type != "cyclonedds") else "multi"
+            len(robot_ip_list) <= 1 and conn_type != "cyclonedds") else "multi"
         
         return cls(
             robot_ip_list=robot_ip_list,

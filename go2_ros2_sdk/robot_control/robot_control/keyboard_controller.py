@@ -5,6 +5,7 @@ import rclpy
 
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
+from action_msgs.srv import CancelGoal
 
 
 # =========================
@@ -29,15 +30,28 @@ class KeyboardController(Node):
 
         super().__init__('keyboard_controller')
 
+        # Publie sur un topic DÉDIÉ (plus sur /cmd_vel_out partagé) : il passe par
+        # twist_mux en priorité MAX -> le pilotage humain prime sur Nav2 (garde-fou).
+        # Au relâchement des touches il se tait (silence-au-repos ci-dessous) -> le
+        # mux time out sur cmd_vel_key et Nav2 reprend la main.
         self.publisher_ = self.create_publisher(
             Twist,
-            '/cmd_vel_out',
+            '/cmd_vel_key',
             10
         )
 
         self.cmd = Twist()
 
-        self.last_input_time = time.time()
+        # GARDE-FOU : dès qu'on prend la main, on annule le goal Nav2 actif, sinon
+        # au relâchement le robot y RETOURNE. Service action cancel_goal : requête
+        # vide (UUID + stamp à zéro) = annule TOUS les goals en cours.
+        self.cancel_cli = self.create_client(
+            CancelGoal, '/navigate_to_pose/_action/cancel_goal')
+        self.human_driving = False   # état frame précédente -> détecte le front montant
+
+        # 0.0 (et non time.time()) -> silencieux au démarrage jusqu'à la 1re
+        # touche : ne publie rien tant qu'on ne pilote pas (ne gêne pas Nav2).
+        self.last_input_time = 0.0
 
         self.timer = self.create_timer(
             1.0 / PUBLISH_RATE,
@@ -72,13 +86,26 @@ class KeyboardController(Node):
 
         now = time.time()
 
+        if now - self.last_input_time > COMMAND_TIMEOUT + (5.0 / PUBLISH_RATE):
+
+            return  # Don't publish if no recent input and not in the last few ticks
+
         # Auto stop if no recent keyboard input
         if now - self.last_input_time > COMMAND_TIMEOUT:
+
             self.stop_robot()
 
         self.publisher_.publish(self.cmd)
 
-    def set_command(self, x=0.0, y=0.0, yaw=0.01):
+    def take_over(self, driving):
+        # front montant (idle -> pilote) : annule le goal Nav2 -> pas de retour au relâchement.
+        # fire-and-forget : si Nav2 n'est pas là, call_async est sans effet.
+        if driving and not self.human_driving:
+            self.cancel_cli.call_async(CancelGoal.Request())
+            self.get_logger().info("prise de contrôle -> goal Nav2 annulé")
+        self.human_driving = driving
+
+    def set_command(self, x=0.0, y=0.0, yaw=0.0):
 
         self.cmd.linear.x = x
         self.cmd.linear.y = y
@@ -88,14 +115,12 @@ class KeyboardController(Node):
 
     def stop_robot(self):
 
-        # Conservation exacte de ton comportement
-        self.set_command(
-            x=0.0,
-            y=0.0,
-            yaw=0.01
-        )
-
-        self.last_input_time = time.time()
+        # Met la commande à zéro SANS toucher last_input_time : sinon le garde de
+        # publish_cmd (>0.22 s -> plus rien) ne se déclenche jamais, on garderait la
+        # priorité MAX du mux en permanence et Nav2 ne reprendrait JAMAIS la main.
+        self.cmd.linear.x = 0.0
+        self.cmd.linear.y = 0.0
+        self.cmd.angular.z = 0.0
 
 
 # =========================
@@ -151,7 +176,7 @@ def main(args=None):
             y = 0.0
 
             # Conservation exacte de ton yaw idle
-            yaw = 0.01
+            yaw = 0.0   
 
             key_pressed = False
 
@@ -205,13 +230,16 @@ def main(args=None):
 
                 x = 0.0
                 y = 0.0
-                yaw = 0.01
+                yaw = 0.0
 
                 key_pressed = True
 
             # =========================
             # APPLY COMMAND
             # =========================
+
+            # garde-fou : annule le goal Nav2 au front montant de la prise de contrôle
+            node.take_over(key_pressed)
 
             if key_pressed:
 

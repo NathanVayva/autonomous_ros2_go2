@@ -18,6 +18,10 @@
 /twist_mux:
   ros__parameters:
     topics:
+      keyboard:                 # pilotage pygame = GARDE-FOU, prioritaire sur tout
+        topic   : cmd_vel_key
+        timeout : 0.5
+        priority: 100
       joy:
         topic   : cmd_vel_joy
         timeout : 0.5

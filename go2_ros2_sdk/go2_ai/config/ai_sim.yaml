@@ -1,0 +1,40 @@
+# Réglages du nœud go2_ai EN SIMULATION (Isaac Sim).
+# Même schéma que ai.yaml, mais backend factice + topics de la sim.
+# But : tester le câblage du node sans GPU ni robot réel.
+go2_ai:
+  ros__parameters:
+    # 'mock' = backend factice (aucun modèle). Bascule sur "qwen3_vl_4b" quand
+    # ton adaptateur réel est prêt (et que tu as un GPU + les poids).
+    backend: "mock"
+
+    # Device d'inférence : "cuda" (GPU) ou "cpu" (RAM). En sim, Isaac occupe déjà
+    # le GPU 8 Go -> mets "cpu" pour faire tourner le VLM en RAM sans conflit.
+    device: "cpu"
+
+    # Mode de production du but : "heading" (cap+distance) | "pixel" (placeholder) |
+    # "map_som" (numéro de POI sur carte annotée ; nécessite carte + localisation).
+    nav_mode: "heading"
+
+    # Enchaînement perception/décision : fused = 1 génération (défaut) ;
+    # chained = describe() puis plan() qui tient compte de la description.
+    reasoning_mode: "fused"
+
+    # Mémoire spatiale : note du modèle enregistrée (x,y,yaw) en JSONL persistant.
+    memory_path: "/ros2_ws/src/go2_ai/spatial_memory.jsonl"
+    memory_dedup_dist: 0.5   # m
+    memory_recall_limit: 20   # nb max d'amers réinjectés dans le prompt (pertinence + proximité)
+
+    # Refus d'un goal tombé dans un obstacle (costmap local Nav2, repère odom).
+    costmap_topic: "/local_costmap/costmap"
+    goal_cost_threshold: 90   # 0..100 : cellule >= ce coût = obstacle -> goal ignoré
+
+
+    # En sim, le driver SDK (CONN_TYPE=sim) republie les données d'Isaac sous les
+    # noms NUS — les mêmes que le vrai robot en mode single. On écoute donc ceux-là
+    # (agnostique sim/réel). NB : le topic BRUT d'Isaac /unitree_go2/odom est MUET
+    # dans ce montage ; l'odométrie vivante est sur /odom (republiée par le SDK).
+    image_topic: "camera/image_raw"
+    odom_topic: "odom"
+
+    instruction: "explore"
+    period_s: 2.0
