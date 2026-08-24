@@ -22,9 +22,6 @@ runInContainer2Start.txt
 .idea/
 .DS_Store
 
-
-
-
 # Secrets / env (auto-generated or machine-specific)
 **/.env
 
@@ -48,6 +45,9 @@ instruction_rapport.txt
 
 # One-off VLM test scratch outputs
 data_tests/
+
+# go2_ai runtime state (written by the node at run time)
+**/spatial_memory.jsonl
 
 # Generated map artifacts (regenerate via go2_ai/tools/map_landmarks.py)
 go2_ros2_sdk/map/*_landmarks.json
