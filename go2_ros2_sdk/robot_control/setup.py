@@ -8,10 +8,10 @@ setup(
     packages=[package_name],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='root',
-    maintainer_email='root@todo.todo',
+    maintainer='Nathan',
+    maintainer_email='nathan.vayva@gmail.com',
     description='TODO',
-    license='TODO',
+    license='BSD-3-Clause',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [

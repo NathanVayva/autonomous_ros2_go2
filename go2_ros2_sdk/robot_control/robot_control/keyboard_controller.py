@@ -1,3 +1,6 @@
+# Copyright (c) 2026, Nathan
+# SPDX-License-Identifier: BSD-3-Clause
+
 import time
 
 import pygame

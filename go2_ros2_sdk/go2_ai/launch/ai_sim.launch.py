@@ -1,4 +1,4 @@
-# Copyright (c) 2024, RoboVerse community
+# Copyright (c) 2026, Nathan
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Lance le nœud go2_ai contre la SIMULATION (Isaac Sim) : backend factice +

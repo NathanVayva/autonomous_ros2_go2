@@ -1,4 +1,4 @@
-# Copyright (c) 2024, RoboVerse community
+# Copyright (c) 2026, Nathan
 # SPDX-License-Identifier: BSD-3-Clause
 
 """Keyboard teleop for the Go2.
