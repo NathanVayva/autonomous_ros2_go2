@@ -15,12 +15,12 @@ control/perception stack and an **Isaac Sim 4.5** simulation of the robot under 
 - **`go2_ros2_sdk/`** — the community ROS 2 SDK for the Go2 (WebRTC / CycloneDDS bridge,
   telemetry → ROS 2 topics, SLAM / Nav2 / teleop launch files). *Upstream, with my changes.*
   - **`go2_ai/`** — my ROS 2 package: the VLM navigation node (Set-of-Mark planning, spatial
-    memory, sim/real-agnostic topics). See [`AI_BACKEND_TUTORIAL.md`](AI_BACKEND_TUTORIAL.md).
+    memory, sim/real-agnostic topics).
 - **`isaac-go2-ros2-isaacsim-4.5-docker/`** — a Go2 simulation on **Isaac Sim 4.5 / Isaac Lab
   2.1** that streams sensor/odometry over ROS 2 Humble and takes velocity commands.
-  *Fork of an upstream project (see Credits).*
-
-Design notes and the running work journal are in [`NAVIGATION_AUTONOME.md`](NAVIGATION_AUTONOME.md).
+  *Fork of an upstream project (see Credits).* Legged locomotion in simulation is driven by the
+  **pre-trained RL policies shipped with that upstream project** (`ckpts/unitree_go2/`); I did not
+  train them.
 
 ## What I contributed
 
@@ -36,10 +36,12 @@ Design notes and the running work journal are in [`NAVIGATION_AUTONOME.md`](NAVI
   **and cancels the active goal**, so the robot does not drive off on its own after a takeover.
 - **Sim ⇄ real plumbing** — the same control/perception stack and the `go2_ai` node run against
   either the simulated or the physical Go2, selected at run time (topic/frame namespacing handled).
-- **Dockerized the stack** so it builds and runs reproducibly on a single-GPU laptop.
+- **Adapted and unified the upstream Docker setups** (SDK and Isaac Sim) behind a single
+  `launch.sh`, so the whole stack builds and runs reproducibly on a single-GPU laptop.
 
-Everything under `go2_ros2_sdk/` (outside `go2_ai/`) and the Isaac simulation itself is upstream
-work; the value I added is the navigation layer and making the pieces run together end-to-end.
+Everything under `go2_ros2_sdk/` (outside `go2_ai/`) and the Isaac simulation itself — including
+its RL locomotion policies — is upstream work; the value I added is the navigation layer and
+making the pieces run together end-to-end.
 
 ## Requirements
 
@@ -74,7 +76,7 @@ cd isaac-go2-ros2-isaacsim-4.5-docker
 
 > The VLM Python deps (`transformers`, `accelerate`, `bitsandbytes`) are **not** in
 > `requirements.txt` and are only needed for a real VLM backend. Install them inside the SDK
-> container when you switch off the `mock` backend (see [`AI_BACKEND_TUTORIAL.md`](AI_BACKEND_TUTORIAL.md)).
+> container when you switch off the `mock` backend.
 
 ## Usage
 
@@ -155,5 +157,6 @@ Tune the navigation node without recompiling in `go2_ros2_sdk/go2_ai/config/ai.y
   `aioice` fork by `legion1581`.
 - **Isaac Sim Go2 simulation** — fork of `Zhefan-Xu/isaac-go2-ros2`
   (https://github.com/Zhefan-Xu/isaac-go2-ros2), with Docker support originally by `SeanChangX`.
+  The pre-trained Go2 RL locomotion checkpoints come from this project.
 
 Please refer to each subproject's own `LICENSE` and README for the terms and full author list.
