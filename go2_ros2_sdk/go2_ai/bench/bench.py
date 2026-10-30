@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # ============================================================================
-#  bench/bench.py  —  SWITCHER, MESURER, DÉCIDER  (tuto §11)
+#  bench/bench.py  —  SWITCHER, MESURER, DÉCIDER
 # ============================================================================
 #  Rôle : charger chaque modèle candidat l'un après l'autre, le passer sur un
 #  jeu de test FIXE (cases.yaml), mesurer (latence via last_latency_ms, mémoire

@@ -134,7 +134,7 @@ Tune the navigation node without recompiling in `go2_ros2_sdk/go2_ai/config/ai.y
 
 | Parameter | Meaning |
 |---|---|
-| `backend` | VLM to load (`mock`, `qwen3_vl_*`, `robobrain2_7b`) — defined in `go2_ai/adapter/registry.py` |
+| `backend` | VLM to load (`mock`, `qwen3_vl_*`, `robobrain2_7b` (stub)) — defined in `go2_ai/adapter/registry.py` |
 | `device` | `cuda` (GPU, 4-bit) or `cpu` (RAM, leaves the GPU free) |
 | `nav_mode` | `map_som` (numbered POI on the map), `heading` (bearing + distance), `pixel` (placeholder) |
 | `map_yaml` / `poi_path` | map shown to the model and its points of interest |

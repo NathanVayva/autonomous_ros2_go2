@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # ============================================================================
-#  domain/ports.py  —  LES CONTRATS (les "prises")  (tuto §2)
+#  domain/ports.py  —  LES CONTRATS (les "prises")
 # ============================================================================
 #  Rôle : décrire CE QU'ON SAIT FAIRE, jamais COMMENT. Ce sont des classes
 #  abstraites (ABC) : des promesses vides. Un adaptateur les "remplit".

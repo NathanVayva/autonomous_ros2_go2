@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # ============================================================================
-#  domain/types.py  —  LE VOCABULAIRE PARTAGÉ  (tuto §4)
+#  domain/types.py  —  LE VOCABULAIRE PARTAGÉ
 # ============================================================================
 #  Rôle : des "boîtes de données" pures, sans ROS ni ML. Tout le projet parle
 #  ce vocabulaire ; les adaptateurs traduisent entre lui et le monde extérieur.

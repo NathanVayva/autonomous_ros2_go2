@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # ============================================================================
-#  presentation/ai_node.py  —  LA PORTE D'ENTRÉE ROS2  (tuto §9)
+#  presentation/ai_node.py  —  LA PORTE D'ENTRÉE ROS2
 # ============================================================================
 #  Rôle : relier ROS et le cœur. Écoute la caméra/odom, fabrique une Observation,
 #  appelle le service DANS UN THREAD (ne jamais bloquer l'exécuteur ROS), publie
@@ -234,8 +234,8 @@ class AINode(Node):
             if known:
                 instruction += ("\n\nLandmarks you already recorded "
                                 "(label: distance, heading): " + " | ".join(known))
-            # mémoire ÉPISODIQUE : trace des derniers POI ciblés (SoM). Fait = liste ;
-            # le NUDGE ("évite de repiquer sauf si nécessaire") reste à toi d'écrire ici.
+            # mémoire ÉPISODIQUE : trace des derniers POI ciblés (SoM), donnée au modèle
+            # comme simple liste, sans consigne pour éviter d'y retourner.
             if self.nav_mode == "map_som" and self._recent:
                 trace = ", ".join(f'{n}({self._pois[n].get("label", "?")})' for n in self._recent)
                 instruction += f"\n\nRecently visited markers (oldest first): {trace}"

@@ -10,7 +10,7 @@ setup(
     zip_safe=True,
     maintainer='Nathan',
     maintainer_email='nathan.vayva@gmail.com',
-    description='TODO',
+    description='Teleoperation clavier du Go2, prioritaire sur Nav2 (garde-fou)',
     license='BSD-3-Clause',
     tests_require=['pytest'],
     entry_points={

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # ============================================================================
-#  adapter/qwen3_adapter.py  —  ADAPTATEUR LOCAL, EN PROCESS  (tuto §5.4)
+#  adapter/qwen3_adapter.py  —  ADAPTATEUR LOCAL, EN PROCESS
 # ============================================================================
 #  Rôle : charger UN VLM en local (aucun serveur, aucune API réseau) et remplir
 #  LES DEUX ports (perception + raisonnement). Toute la "saleté" (torch, PIL,
@@ -36,7 +36,7 @@ SYSTEM_PROMPT = (
     'Max 5 words, a noun phrase only: no reasoning, no room description. '
     'Use "" if nothing distinctive here, or if you already noted a nearby spot. '
     # landmark = FILTRE de réutilisation (option 1). Seules les notes flaggées true
-    # sont mémorisées -> deviennent des POI plus tard. WORDING du critère = à toi.
+    # sont mémorisées -> deviennent des POI plus tard.
     'landmark: true ONLY if this spot is worth navigating back to later '
     '(a destination, not passing clutter); false otherwise. '
     'if landmark is true, note MUST be a non-empty noun phrase'

@@ -3,7 +3,7 @@
 <package format="3">
   <name>robot_control</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Teleoperation clavier du Go2, prioritaire sur Nav2 (garde-fou)</description>
   <maintainer email="nathan.vayva@gmail.com">Nathan</maintainer>
   <license>BSD-3-Clause</license>
 

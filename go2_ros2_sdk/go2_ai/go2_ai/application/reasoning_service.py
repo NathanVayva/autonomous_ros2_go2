@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # ============================================================================
-#  application/reasoning_service.py  —  LE CHEF D'ORCHESTRE  (tuto §8)
+#  application/reasoning_service.py  —  LE CHEF D'ORCHESTRE
 # ============================================================================
 #  Rôle : enchaîner "perçois" puis "décide". Ne connaît QUE les ports (pas Qwen
 #  ni RoboBrain). Court et stable : toute la complexité est chez les adaptateurs.

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # ============================================================================
-#  adapter/registry.py  —  L'ANNUAIRE / LE POINT DE SWITCH  (tuto §7)
+#  adapter/registry.py  —  L'ANNUAIRE / LE POINT DE SWITCH
 # ============================================================================
 #  Rôle : mapper un NOM -> un adaptateur configuré (model_id local + options).
 #  C'est LE point unique où l'on choisit le modèle. Chaque entrée = un candidat
